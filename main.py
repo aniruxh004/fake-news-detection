@@ -1,4 +1,4 @@
-# main.py
+
 import os
 import pandas as pd
 import numpy as np
@@ -9,7 +9,6 @@ from scripts.feature_extraction import extract_tfidf_features, extract_sentence_
 from scripts.semi_supervised_model import train_hybrid_model
 from scripts.visualize import visualize_topics, plot_anomaly_scores
 
-# =============== LOAD DATASET ===============
 print("🔹 Loading dataset...")
 true_df = pd.read_csv("dataset/True.csv")
 fake_df = pd.read_csv("dataset/Fake.csv")
@@ -21,20 +20,20 @@ df = pd.concat([true_df, fake_df], axis=0).sample(frac=1, random_state=42).reset
 texts = df["text"].astype(str).tolist()
 labels = df["label"].tolist()
 
-# =============== CLEAN TEXT ===============
+# CLEAN TEXT 
 print("🔹 Cleaning text data...")
 cleaned_texts = clean_texts(texts)
 
-# =============== FEATURE EXTRACTION ===============
+# FEATURE EXTRACTION
 print("🔹 Extracting TF-IDF and sentence embeddings...")
 tfidf_vectorizer, tfidf_features = extract_tfidf_features(cleaned_texts)
 sentence_embeddings = extract_sentence_embeddings(cleaned_texts)
 
-# =============== TRAIN HYBRID MODEL ===============
+# TRAIN HYBRID MODEL
 print("🔹 Training hybrid semi-supervised model...")
 isolation_forest, lda_model = train_hybrid_model(tfidf_features, sentence_embeddings)
 
-# =============== VISUALIZATIONS ===============
+#  VISUALIZATIONS 
 os.makedirs("outputs", exist_ok=True)
 visualize_topics(lda_model, tfidf_vectorizer.get_feature_names_out(), save_path="outputs/lda_topics.png")
 plot_anomaly_scores(isolation_forest, sentence_embeddings, save_path="outputs/anomaly_scores.png")
@@ -46,7 +45,7 @@ joblib.dump(lda_model, "outputs/lda_model.pkl")
 joblib.dump(isolation_forest, "outputs/isolation_forest.pkl")
 print("✅ Models saved successfully in 'outputs/' folder.")
 
-# =============== EVALUATION ===============
+
 print("\n🔹 Evaluating anomaly detection on known labels...")
 anomaly_preds = isolation_forest.predict(sentence_embeddings)
 anomaly_preds = [1 if p == 1 else 0 for p in anomaly_preds]  # Convert -1 to 0 (fake), 1 to real
